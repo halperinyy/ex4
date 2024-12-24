@@ -6,6 +6,8 @@ Assignment:
 #include <stdio.h>
 #include <string.h>
 
+#define CHEER_FLOORS 5
+
 void task1RobotPaths();
 void task2HumanPyramid();
 void task3ParenthesisValidator();
@@ -14,12 +16,7 @@ void task5CrosswordGenerator();
 
 int robotpaths1(int row, int col);
 int robotpaths2(int row, int col);
-int HumanPyramid(float cheer1, float cheer2, float cheer3, float cheer4, float cheer5, float cheer6, float cheer7, float cheer8, float cheer9, float cheer10, float cheer11, float cheer12, float cheer13, float cheer14, float cheer15 );
-
-
-
-
-
+float HumanPyramid(int level, int column, float inputWeight[CHEER_FLOORS][CHEER_FLOORS]);
 
 
 int main()
@@ -46,10 +43,7 @@ int main()
                 task1RobotPaths();
                 break;
             case 2:
-                printf("Please enter the weights of the cheerleaders:\n");
-
                 task2HumanPyramid();
-
                 break;
             case 3:
                 task3ParenthesisValidator();
@@ -95,13 +89,51 @@ void task1RobotPaths()
     printf("The total number of paths the robot can take to reach home is: %d\n", numOfWays);    
 }
 
+float HumanPyramid(int level, int column, float inputWeight[CHEER_FLOORS][CHEER_FLOORS])
+{
+    (void)level;
+    (void)column;
+    (void)inputWeight;
+    return 0;   // TODO
+}
+
 void task2HumanPyramid()
 {
-    printf("Please enter the weights of the cheerleaders:\n");
-    for(int i = 0;i < 5;i++){
+    float clWeights[CHEER_FLOORS][CHEER_FLOORS];
+    float cheerledersCalc[CHEER_FLOORS][CHEER_FLOORS];
 
+    printf("Please enter the weights of the cheerleaders:\n");
+    // scanf(" %f"            , &cl[0][0]);
+    // scanf(" %f %f"         , &cl[1][0], &cl[1][1]);
+    // scanf(" %f %f %f"      , &cl[2][0], &cl[2][1], &cl[2][2]);
+    // scanf(" %f %f %f %f"   , &cl[3][0], &cl[3][1], &cl[3][2], &cl[3][3]);
+    // scanf(" %f %f %f %f %f", &cl[4][0], &cl[4][1], &cl[4][2], &cl[4][3], &cl[4][4]);
+    for(int i = 0;i < 5;i++)
+    {
+        for(int j = 0 ; j < i ; j++)
+        {
+            scanf(" %f", &clWeights[i][j]);
+        }
     }
 
+
+    for(int i = 0 ; i < CHEER_FLOORS; i++)
+    {
+        for(int j = 0 ; j < i ; j++)
+        {
+            cheerledersCalc[i][j] = HumanPyramid(i, j, clWeights);
+        }
+    }
+
+    printf("The total weight on each cheerleader is:");
+    for (int i = 0 ; i < CHEER_FLOORS ; i++)
+    {
+        for(int j = 0 ; j <= i ; j++)
+        {
+            printf("%.2f ", cheerledersCalc[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 void task3ParenthesisValidator()
