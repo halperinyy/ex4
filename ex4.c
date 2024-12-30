@@ -26,13 +26,11 @@ int robotpaths1(int row, int col);
 float humanPyramid(int level, int column, float inputWeight[CHEER_FLOORS][CHEER_FLOORS]);
 void task4QueensBattle();
 
-int queenPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE],
-                char occupied[CHESS_MAX_SIZE], int boardSize, int row);
 int squarePossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE],
-                    char occupied[CHESS_MAX_SIZE], int boardSize, int row, int col);
-int colIsClear(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int col);
-int kingdomIsClear(char occupied[CHESS_MAX_SIZE], char kingdoms, int index, int boardSize);
-int rowPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char occupied[CHESS_MAX_SIZE],
+                    int occupied[256], int boardSize, int row, int col);
+int colIsClear(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int col, int boardSize);
+int kingdomIsClear(int occupied[256], char kingdoms);
+int rowPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int occupied[256],
                 int boardSize, int row, int col);
 void boardPrinter(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int boardSize);
 
@@ -94,9 +92,9 @@ int main()
         }
         else
         {
-            scanf(" %*s");
+            // printf("BLA BLA!!! task = %d\n", task);
+            scanf("%*s");
         }
-
     } while (task != 6);
 }
 
@@ -138,8 +136,6 @@ float humanPyramid(int level, int column, float inputWeight[CHEER_FLOORS][CHEER_
     if(column != 0 && column != level){
         totalAbove = humanPyramid(level - 1, column, inputWeight) + humanPyramid(level - 1, column - 1, inputWeight);
     }
-
-    printf("CALLED humanPyramid(%d,%d), cheerWeight = %f, totalAbove = %f\n",level,column, cheerWeight, totalAbove);
 
     float cheerTotalAbove = totalAbove / 2;
     result = cheerWeight + cheerTotalAbove;
@@ -263,7 +259,7 @@ void task4QueensBattle(){
     int boardSize;
     int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE] = {0};
     char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE];
-    char occupied[CHESS_MAX_SIZE];
+    int occupied[256] = {0};
     char kingdomScanner;
     printf("Please enter the board dimensions:\n");
     scanf(" %d", &boardSize);
@@ -274,7 +270,8 @@ void task4QueensBattle(){
             kingdoms[i][t] = kingdomScanner;
         }
     }
-    int queenPlacerTrue = queenPlacer(board, kingdoms, occupied, boardSize, 0);
+    printf("INPUT FINISH\n");
+    int queenPlacerTrue = rowPlacer(board, kingdoms, occupied, boardSize, 0, 0);
     if(queenPlacerTrue){
         boardPrinter(board, boardSize);
     }
@@ -283,106 +280,102 @@ void task4QueensBattle(){
     }
 }
 
-int queenPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char occupied[CHESS_MAX_SIZE], int boardSize, int row){
-    if(row >= boardSize){
-        return 1;
-    }
-
-    return rowPlacer(board, kingdoms, occupied, boardSize, row, 0);
-}
-
-int CheckColPossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int rowStartIndex, int col, int count)
+int CheckColPossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int boardSize, int rowStartIndex, int col, int count)
 {
     //Cases for "possible"
-    if(col < 0 || col >= CHESS_MAX_SIZE || count <= 0)
+    if(col < 0 || col > boardSize || count <= 0)
     {
         return 1;
     }
 
     int rowToCheck = rowStartIndex + count - 1;
     //A queen exist in this square, return "not possible"
-    if(rowToCheck >= 0 && rowToCheck < CHESS_MAX_SIZE && board[rowToCheck][col])
+    if(rowToCheck >= 0 && rowToCheck < boardSize && board[rowToCheck][col])
     {
         return 0;
     }
     else
     {
-        return CheckColPossible(board, rowStartIndex, col, count - 1);
+        return CheckColPossible(board, boardSize, rowStartIndex, col, count - 1);
     }
 }
 
-int CheckRowPossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int row, int colStartIndex, int count)
+int CheckRowPossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int boardSize, int row, int colStartIndex, int count)
 {
     //Cases for "possible"
-    if(row < 0 || row >= CHESS_MAX_SIZE || count <= 0)
+    if(row < 0 || row > boardSize || count <= 0)
     {
         return 1;
     }
 
     int colToCheck = colStartIndex + count - 1;
     //A queen exist in this square, return "not possible"
-    if(colToCheck >= 0 && colToCheck < CHESS_MAX_SIZE && board[row][colToCheck])
+    if(colToCheck >= 0 && colToCheck < boardSize && board[row][colToCheck])
     {
         return 0;
     }
     else
     {
-        return CheckColPossible(board, row, colStartIndex, count - 1);
+        return CheckRowPossible(board, boardSize, row, colStartIndex, count - 1);
     }
 }
 
-int squarePossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char occupied[CHESS_MAX_SIZE], int boardSize, int row, int col){
-    int QueenIsNotTouching;      
+int squarePossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE],
+                   int occupied[256], int boardSize, int row, int col){
+    int QueenIsNotTouching = 0;
+
     //Check row up and down and column right and left.
-    if(CheckColPossible(board, row - 1, col - 1, 3) && 
-       CheckColPossible(board, row - 1, col + 1, 3) && 
-       CheckRowPossible(board, row - 1, col - 1, 3) && 
-       CheckRowPossible(board, row + 1, col - 1, 3) && 
-       colIsClear(board, col)) {
+    if(CheckColPossible(board, boardSize, row - 1, col - 1, 3) && 
+       CheckColPossible(board, boardSize, row - 1, col + 1, 3) && 
+       CheckRowPossible(board, boardSize, row - 1, col - 1, 3) && 
+       CheckRowPossible(board, boardSize, row + 1, col - 1, 3) && 
+       colIsClear(board, col, boardSize)) {
         QueenIsNotTouching = 1;
     }
   
-    int KingdomClear = kingdomIsClear(occupied, kingdoms[row][col], 0, boardSize);
+    int KingdomClear = kingdomIsClear(occupied, kingdoms[row][col]);
 
     return KingdomClear && QueenIsNotTouching;
 
 }
 
-int colIsClear(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int col)
+int colIsClear(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int col, int boardSize)
 {
-    return CheckColPossible(board, 0, col, CHESS_MAX_SIZE);
+    return CheckColPossible(board, boardSize, 0, col, boardSize);
 }
 
-
-int kingdomIsClear(char occupied[CHESS_MAX_SIZE], char kingdoms, int index, int boardSize){
-    if(index > boardSize) {
-        return 1;
-    }
-    else{ 
-        if(kingdoms == occupied[index]) {
-        return 0;
-        }
-    }
-    return kingdomIsClear(occupied, kingdoms, index + 1, boardSize);
+void SetKingdom(int occupied[256], char kingdom){
+    occupied[(int)kingdom] = 1;
+}
+void ClearKingdom(int occupied[256], char kingdom){
+    occupied[(int)kingdom] = 0;
+}
+int kingdomIsClear(int occupied[256], char kingdom){
+    return occupied[(int)kingdom] == 0;
 }
 
 int rowPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE],
-              char occupied[CHESS_MAX_SIZE], int boardSize, int row, int col){
+              int occupied[256], int boardSize, int row, int col){
+    if(row >= boardSize){
+        return 1;
+    }
+
     if(col >= boardSize){
         return 0;
     }
+
     int queenIsPossible = squarePossible(board, kingdoms, occupied, boardSize, row, col);
     if(queenIsPossible){
         board[row][col] = 1;
-        occupied[row] = kingdoms[row][col];
-        int doesQueenPlacer = queenPlacer(board, kingdoms, occupied, boardSize, row);
+        SetKingdom(occupied, kingdoms[row][col]);
+        int doesQueenPlacer = rowPlacer(board, kingdoms, occupied, boardSize, row + 1, 0);
         if(doesQueenPlacer){
             return 1;
         }
         board[row][col] = 0;
-        occupied[row] = 0;
+        ClearKingdom(occupied, kingdoms[row][col]);
     }
-    return rowPlacer(board, kingdoms, occupied, boardSize, row, col +1);
+    return rowPlacer(board, kingdoms, occupied, boardSize, row, col + 1);
 }
 
 void boardPrinter(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int boardSize){
