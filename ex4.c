@@ -20,20 +20,21 @@ void task2HumanPyramid();
 void task3ParenthesisValidator();
 void task4QueensBattle();
 void task5CrosswordGenerator();
+int ParenthesesNext(char lastOpen, int isFirst);
 
 int robotpaths1(int row, int col);
-float HumanPyramid(int level, int column, float inputWeight[CHEER_FLOORS][CHEER_FLOORS]);
+float humanPyramid(int level, int column, float inputWeight[CHEER_FLOORS][CHEER_FLOORS]);
 void task4QueensBattle();
 
-int QueenPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE],
+int queenPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE],
                 char occupied[CHESS_MAX_SIZE], int boardSize, int row);
-int SquarePossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE],
+int squarePossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE],
                     char occupied[CHESS_MAX_SIZE], int boardSize, int row, int col);
-int ColIsClear(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int col);
-int KingdomIsClear(char occupied[CHESS_MAX_SIZE], char kingdoms, int index, int boardSize);
-int RowPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char occupied[CHESS_MAX_SIZE],
+int colIsClear(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int col);
+int kingdomIsClear(char occupied[CHESS_MAX_SIZE], char kingdoms, int index, int boardSize);
+int rowPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char occupied[CHESS_MAX_SIZE],
                 int boardSize, int row, int col);
-void BoardPrinter(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int boardSize);
+void boardPrinter(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int boardSize);
 
 
 typedef struct{
@@ -43,13 +44,13 @@ typedef struct{
     int type;   //0 - horizontal, 1 - vertical
 } CWORD_SLOT;
 
-int Match(CWORD_SLOT slot, char word[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]);
-void Fill(CWORD_SLOT slot, char word[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]);
-void CopyWord(CWORD_SLOT slot, char destWord[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]);
-void PrintGrid(int gridSize, char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]);
-int FindWordForSlot(int slotsCnt, int wordCnt, int currWord, int currSlot, CWORD_SLOT slotArray[CWORD_MAX_SLOTS],
+int match(CWORD_SLOT slot, char word[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]);
+void fill(CWORD_SLOT slot, char word[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]);
+void copyWord(CWORD_SLOT slot, char destWord[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]);
+void printGrid(int gridSize, char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]);
+int findWordForSlot(int slotsCnt, int wordCnt, int currWord, int currSlot, CWORD_SLOT slotArray[CWORD_MAX_SLOTS],
                     char wordArray[CWORD_MAX_WORDS][CWORD_MAX_WORD_LEN+1], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]);
-int CrosswordGen(int slotsCnt, int wordCnt, CWORD_SLOT slotArray[CWORD_MAX_SLOTS],
+int crosswordGen(int slotsCnt, int wordCnt, CWORD_SLOT slotArray[CWORD_MAX_SLOTS],
                  char wordArray[CWORD_MAX_WORDS][CWORD_MAX_WORD_LEN+1], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]);
 
 int main()
@@ -65,8 +66,7 @@ int main()
                "5. Crossword Generator\n"
                "6. Exit\n");
 
-        if (scanf("%d", &task))
-        {
+        if (scanf(" %d", &task)){
             switch (task)
             {
             case 6:
@@ -94,7 +94,7 @@ int main()
         }
         else
         {
-            scanf("%*s");
+            scanf(" %*s");
         }
 
     } while (task != 6);
@@ -122,22 +122,24 @@ void task1RobotPaths()
     printf("The total number of paths the robot can take to reach home is: %d\n", numOfWays);    
 }
 
-float HumanPyramid(int level, int column, float inputWeight[CHEER_FLOORS][CHEER_FLOORS]){
+float humanPyramid(int level, int column, float inputWeight[CHEER_FLOORS][CHEER_FLOORS]){
     float cheerWeight = inputWeight[level][column];
     float totalAbove, result;
-    printf("CALLED HumanPyramid(%d,%d)\n",level,column);
+    
     if(column == 0 && column == level){
         totalAbove = 0;
     }
     if(column == 0 && column != level){
-        totalAbove = HumanPyramid(level - 1, column, inputWeight);
+        totalAbove = humanPyramid(level - 1, column, inputWeight);
     } 
     if(column != 0 && column == level){
-        totalAbove = HumanPyramid(level - 1, column - 1, inputWeight);
+        totalAbove = humanPyramid(level - 1, column - 1, inputWeight);
     } 
     if(column != 0 && column != level){
-        totalAbove = HumanPyramid(level - 1, column, inputWeight) + HumanPyramid(level - 1, column - 1, inputWeight);
+        totalAbove = humanPyramid(level - 1, column, inputWeight) + humanPyramid(level - 1, column - 1, inputWeight);
     }
+
+    printf("CALLED humanPyramid(%d,%d), cheerWeight = %f, totalAbove = %f\n",level,column, cheerWeight, totalAbove);
 
     float cheerTotalAbove = totalAbove / 2;
     result = cheerWeight + cheerTotalAbove;
@@ -145,36 +147,26 @@ float HumanPyramid(int level, int column, float inputWeight[CHEER_FLOORS][CHEER_
 
 }
 
-void task2HumanPyramid()
-{
+void task2HumanPyramid(){
     float clWeights[CHEER_FLOORS][CHEER_FLOORS];
     float cheerledersCalc[CHEER_FLOORS][CHEER_FLOORS];
-
     printf("Please enter the weights of the cheerleaders:\n");
-
-    // for(int i = 0;i < 5;i++)
-    // {
-    //     for(int j = 0 ; j < i ; j++)
-    //     {
-    //         scanf(" %f", &clWeights[i][j]);
-    //     }
-    // }
-    printf("The input weight per each cheerleader is:\n");
-    for (int i = 0 ; i < CHEER_FLOORS ; i++)
+    for(int i = 0 ; i < CHEER_FLOORS ; i++)
     {
         for(int j = 0 ; j <= i ; j++)
         {
-            clWeights[i][j] = 1;
-            printf("%.2f ", clWeights[i][j]);
+            scanf(" %f", &clWeights[i][j]);
+            if(clWeights[i][j] < 0){
+                printf("Negative weights are not supported.\n");
+                return;
+            }
         }
-        printf("\n");
     }
 
-    for(int i = 0 ; i <  CHEER_FLOORS; i++)
-    {
+    for(int i = 0 ; i <  CHEER_FLOORS; i++){
         for(int j = 0 ; j <= i ; j++)
         {
-            cheerledersCalc[i][j] = HumanPyramid(i, j, clWeights);
+            cheerledersCalc[i][j] = humanPyramid(i, j, clWeights);
         }
     }
 
@@ -217,11 +209,17 @@ int IsMatching(char open, char close)
     return 0;
 }
 
-int ParenthesesNext(char lastOpen)
+//Returns 1 if success and 0 if failure.
+int ParenthesesNext(char lastOpen, int isFirst)
 {
     char c;
     int res = 1;
-    scanf("%c", &c);
+    if(isFirst){
+        scanf(" %c", &c);
+    }
+    else{
+        scanf("%c", &c);
+    }    
 
     //This is an enter - end of input
     if((int)c == 10 || c == '\0')
@@ -235,24 +233,30 @@ int ParenthesesNext(char lastOpen)
     }
     if(IsOpenParentheses(c))
     {
-        res = ParenthesesNext(c);
+        res = ParenthesesNext(c, 0);
     }
     if(IsCloseParentheses(c))
     {
         return IsMatching(lastOpen, c);
     }
 
-    return res && ParenthesesNext(lastOpen);
+    return res && ParenthesesNext(lastOpen, 0);
 }
 
 int ParethesesValidator(void)
 {
-    return ParenthesesNext('\0');
+    return ParenthesesNext('\0', 1);
 }
 
-void task3ParenthesisValidator()
-{
-    // Todo
+void task3ParenthesisValidator(){
+    printf("Please enter a term for validation:\n");
+    if(ParethesesValidator()){
+        printf("The parentheses are balanced correctly.\n");
+    }
+    else
+    {
+        printf("The parentheses are not balanced correctly.\n");
+    }
 }
 
 void task4QueensBattle(){
@@ -270,21 +274,21 @@ void task4QueensBattle(){
             kingdoms[i][t] = kingdomScanner;
         }
     }
-    int QueenPlacerTrue = QueenPlacer(board, kingdoms, occupied, boardSize, 0);
-    if(QueenPlacerTrue){
-        BoardPrinter(board, boardSize);
+    int queenPlacerTrue = queenPlacer(board, kingdoms, occupied, boardSize, 0);
+    if(queenPlacerTrue){
+        boardPrinter(board, boardSize);
     }
     else{
         printf("This puzzle cannot be solved.\n");
     }
 }
 
-int QueenPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char occupied[CHESS_MAX_SIZE], int boardSize, int row){
+int queenPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char occupied[CHESS_MAX_SIZE], int boardSize, int row){
     if(row >= boardSize){
         return 1;
     }
 
-    return RowPlacer(board, kingdoms, occupied, boardSize, row, 0);
+    return rowPlacer(board, kingdoms, occupied, boardSize, row, 0);
 }
 
 int CheckColPossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int rowStartIndex, int col, int count)
@@ -327,30 +331,30 @@ int CheckRowPossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int row, int col
     }
 }
 
-int SquarePossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char occupied[CHESS_MAX_SIZE], int boardSize, int row, int col){
+int squarePossible(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char occupied[CHESS_MAX_SIZE], int boardSize, int row, int col){
     int QueenIsNotTouching;      
     //Check row up and down and column right and left.
     if(CheckColPossible(board, row - 1, col - 1, 3) && 
        CheckColPossible(board, row - 1, col + 1, 3) && 
        CheckRowPossible(board, row - 1, col - 1, 3) && 
        CheckRowPossible(board, row + 1, col - 1, 3) && 
-       ColIsClear(board, col)) {
+       colIsClear(board, col)) {
         QueenIsNotTouching = 1;
     }
   
-    int KingdomClear = KingdomIsClear(occupied, kingdoms[row][col], 0, boardSize);
+    int KingdomClear = kingdomIsClear(occupied, kingdoms[row][col], 0, boardSize);
 
     return KingdomClear && QueenIsNotTouching;
 
 }
 
-int ColIsClear(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int col)
+int colIsClear(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int col)
 {
     return CheckColPossible(board, 0, col, CHESS_MAX_SIZE);
 }
 
 
-int KingdomIsClear(char occupied[CHESS_MAX_SIZE], char kingdoms, int index, int boardSize){
+int kingdomIsClear(char occupied[CHESS_MAX_SIZE], char kingdoms, int index, int boardSize){
     if(index > boardSize) {
         return 1;
     }
@@ -359,29 +363,29 @@ int KingdomIsClear(char occupied[CHESS_MAX_SIZE], char kingdoms, int index, int 
         return 0;
         }
     }
-    return KingdomIsClear(occupied, kingdoms, index + 1, boardSize);
+    return kingdomIsClear(occupied, kingdoms, index + 1, boardSize);
 }
 
-int RowPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE],
+int rowPlacer(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], char kingdoms[CHESS_MAX_SIZE][CHESS_MAX_SIZE],
               char occupied[CHESS_MAX_SIZE], int boardSize, int row, int col){
     if(col >= boardSize){
         return 0;
     }
-    int queenIsPossible = SquarePossible(board, kingdoms, occupied, boardSize, row, col);
+    int queenIsPossible = squarePossible(board, kingdoms, occupied, boardSize, row, col);
     if(queenIsPossible){
         board[row][col] = 1;
         occupied[row] = kingdoms[row][col];
-        int doesQueenPlacer = QueenPlacer(board, kingdoms, occupied, boardSize, row);
+        int doesQueenPlacer = queenPlacer(board, kingdoms, occupied, boardSize, row);
         if(doesQueenPlacer){
             return 1;
         }
         board[row][col] = 0;
         occupied[row] = 0;
     }
-    return RowPlacer(board, kingdoms, occupied, boardSize, row, col +1);
+    return rowPlacer(board, kingdoms, occupied, boardSize, row, col +1);
 }
 
-void BoardPrinter(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int boardSize){
+void boardPrinter(int board[CHESS_MAX_SIZE][CHESS_MAX_SIZE], int boardSize){
     printf("Solution:\n");
     for(int i = 0; i < boardSize; i++) {
         for(int t = 0; t < boardSize; t++) {
@@ -408,10 +412,10 @@ void task5CrosswordGenerator(){
         }
     }
     // ///////////////////////////////// INPUT ////////////////////////////////////////////////
-    printf("Please enter the dimensions of the crossword grid\n");
+    printf("Please enter the dimensions of the crossword grid:\n");
     scanf(" %d", &gridSize);
 
-    printf("Please enter the number of slots in the crossword\n");
+    printf("Please enter the number of slots in the crossword:\n");
     scanf(" %d", &slotsCnt);
 
     printf("Please enter the details for each slot (Row, Column, Length, Direction):\n");
@@ -427,7 +431,7 @@ void task5CrosswordGenerator(){
             printf("Please enter the number of words in the dictionary:\n");
         }
         else{
-            printf("The dictionary must contain at least N words. Please enter a valid dictionary size:\n");
+            printf("The dictionary must contain at least %d words. Please enter a valid dictionary size:\n", slotsCnt);
         }
         scanf(" %d", &wordCnt);        
     } while(wordCnt < slotsCnt);
@@ -441,13 +445,13 @@ void task5CrosswordGenerator(){
 
     ///////////////////////////////// PROCESS ////////////////////////////////////////////////
 
-    int res = CrosswordGen(slotsCnt, wordCnt, slotArray, wordArray, cwordGridArr);
+    int res = crosswordGen(slotsCnt, wordCnt, slotArray, wordArray, cwordGridArr);
 
     ///////////////////////////////// OUTPUT ////////////////////////////////////////////////
  
     if(res == 1){
         // printf("SUCESS!!\n");
-        PrintGrid(gridSize, cwordGridArr);
+        printGrid(gridSize, cwordGridArr);
     }
     else{
         printf("This crossword cannot be solved.\n");
@@ -456,7 +460,7 @@ void task5CrosswordGenerator(){
 
 
 //Checks for a match in a horizontal or vertical slot with some word. returns 1 for success, 0 for failure
-int Match(CWORD_SLOT slot, char word[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]){
+int match(CWORD_SLOT slot, char word[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]){
     //End of word and slot - success!
     if(slot.len == 0 && word[0] == '\0'){
         return 1;
@@ -473,11 +477,11 @@ int Match(CWORD_SLOT slot, char word[], char cwordGridArr[CWORD_MAX_GRID_SIZE][C
     slot.row += slot.type == 1 ? 1 : 0;
     slot.col += slot.type == 0 ? 1 : 0;
     slot.len -= 1;
-    return Match(slot, word + 1, cwordGridArr);
+    return match(slot, word + 1, cwordGridArr);
 }
 
 //Fills a horizontal or vertical slot with some word
-void Fill(CWORD_SLOT slot, char word[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]){
+void fill(CWORD_SLOT slot, char word[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]){
     if(slot.len == 0){
         return;
     }
@@ -486,11 +490,11 @@ void Fill(CWORD_SLOT slot, char word[], char cwordGridArr[CWORD_MAX_GRID_SIZE][C
     slot.row += slot.type == 1 ? 1 : 0;
     slot.col += slot.type == 0 ? 1 : 0;
     slot.len -= 1;
-    Fill(slot, word + 1, cwordGridArr);
+    fill(slot, word + 1, cwordGridArr);
 }
 
 //Copy some word from the grid to a buffer
-void CopyWord(CWORD_SLOT slot, char destWord[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]){
+void copyWord(CWORD_SLOT slot, char destWord[], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]){
     if(slot.len == 0){
         return;
     }
@@ -500,21 +504,21 @@ void CopyWord(CWORD_SLOT slot, char destWord[], char cwordGridArr[CWORD_MAX_GRID
     slot.row += slot.type == 1 ? 1 : 0;
     slot.col += slot.type == 0 ? 1 : 0;
     slot.len -= 1;
-    CopyWord(slot, destWord + 1, cwordGridArr);
+    copyWord(slot, destWord + 1, cwordGridArr);
 }
 
 //Prints the grid as wanted
-void PrintGrid(int gridSize, char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]){
+void printGrid(int gridSize, char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]){
     for(int i = 0 ; i < gridSize ; i++){
         printf("|");
         for(int j = 0 ; j < gridSize ; j++){
-            printf("%c|", cwordGridArr[i][j]);
+            printf(" %c |", cwordGridArr[i][j]);
         }
         printf("\n");
     }
 }
 
-int FindWordForSlot(int slotsCnt, int wordCnt, int currWord, int currSlot, CWORD_SLOT slotArray[CWORD_MAX_SLOTS],
+int findWordForSlot(int slotsCnt, int wordCnt, int currWord, int currSlot, CWORD_SLOT slotArray[CWORD_MAX_SLOTS],
                     char wordArray[CWORD_MAX_WORDS][CWORD_MAX_WORD_LEN+1], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]){
     //All slots were matched with a word - success!
     if(slotsCnt == currSlot){
@@ -525,15 +529,15 @@ int FindWordForSlot(int slotsCnt, int wordCnt, int currWord, int currSlot, CWORD
         return 0;
     }
     //Check the current word
-    if(Match(slotArray[currSlot], wordArray[currWord], cwordGridArr) == 1){
+    if(match(slotArray[currSlot], wordArray[currWord], cwordGridArr) == 1){
         char orig[CWORD_MAX_WORD_LEN+1] = {0};
-        CopyWord(slotArray[currSlot], orig, cwordGridArr);
+        copyWord(slotArray[currSlot], orig, cwordGridArr);
         //Match success - continue to next slot
-        Fill(slotArray[currSlot], wordArray[currWord], cwordGridArr);
+        fill(slotArray[currSlot], wordArray[currWord], cwordGridArr);
         char wordFirstLetter = wordArray[currWord][0];
         //Mark the current word as taken (for not be used again)
         wordArray[currWord][0] = '\0';
-        int res = FindWordForSlot(slotsCnt, wordCnt, 0, currSlot + 1, slotArray, wordArray, cwordGridArr);
+        int res = findWordForSlot(slotsCnt, wordCnt, 0, currSlot + 1, slotArray, wordArray, cwordGridArr);
         //Success in the algorithm
         if(res == 1){
             return 1;
@@ -541,24 +545,24 @@ int FindWordForSlot(int slotsCnt, int wordCnt, int currWord, int currSlot, CWORD
         //No success - return the original word to the grid and return the word to the dictionary
         {
             wordArray[currWord][0] = wordFirstLetter;
-            Fill(slotArray[currSlot], orig, cwordGridArr);
+            fill(slotArray[currSlot], orig, cwordGridArr);
         }
     }
     //No match - check the next word for this slot
-    return FindWordForSlot(slotsCnt, wordCnt, currWord + 1, currSlot, slotArray, wordArray, cwordGridArr);
+    return findWordForSlot(slotsCnt, wordCnt, currWord + 1, currSlot, slotArray, wordArray, cwordGridArr);
 }
 
-int CrosswordGen(int slotsCnt, int wordCnt, CWORD_SLOT slotArray[CWORD_MAX_SLOTS],
+int crosswordGen(int slotsCnt, int wordCnt, CWORD_SLOT slotArray[CWORD_MAX_SLOTS],
                  char wordArray[CWORD_MAX_WORDS][CWORD_MAX_WORD_LEN+1], char cwordGridArr[CWORD_MAX_GRID_SIZE][CWORD_MAX_GRID_SIZE]){
-    return FindWordForSlot(slotsCnt, wordCnt, 0, 0, slotArray, wordArray, cwordGridArr);
+    return findWordForSlot(slotsCnt, wordCnt, 0, 0, slotArray, wordArray, cwordGridArr);
 }
 
-void CrosswordGeneratorExercise(void){
+void crosswordGeneratorExercise(void){
  
 }
 
 // int main(void){
-//     CrosswordGeneratorExercise();
+//     crosswordGeneratorExercise();
 //     return 0;
 // }
 
